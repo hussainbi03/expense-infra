@@ -10,9 +10,9 @@ pipeline {
         timeout(time: 30, unit: 'MINUTES')
         ansiColor('xterm')
     }
-    parameters{
+    /* parameters{
         choice(name: 'ACTION', choices: ['apply', 'destroy'], description: 'Pick something')
-    } 
+    } */ 
     stages {
         stage('Init') {
             steps {
@@ -45,6 +45,7 @@ pipeline {
                }
             }
         }
+    }
         /* stage('Parallel Stages') {
             when { 
                 expression { params.ACTION == 'apply'}
@@ -99,5 +100,4 @@ pipeline {
             echo 'I will run when pipeline is success'
         }
     }
-}
 }
