@@ -1,3 +1,4 @@
+
 pipeline {
     agent { label 'AGENT-1' }
     environment { 
@@ -8,9 +9,9 @@ pipeline {
     options {
         disableConcurrentBuilds()
         timeout(time: 30, unit: 'MINUTES')
-        /*ansiColor('xterm')*/
+        ansiColor('xterm')
     }
-     parameters{
+    parameters{
         choice(name: 'ACTION', choices: ['apply', 'destroy'], description: 'Pick something')
     } 
     stages {
@@ -19,7 +20,7 @@ pipeline {
                script{
                 withAWS(region: 'us-east-1', credentials: 'aws-creds') {
                     sh """
-                        cd 00-vpc
+                        cd 30-rds
                         terraform init -reconfigure
                         terraform plan
                     """
@@ -29,15 +30,11 @@ pipeline {
             }
         }
         stage('Apply') {
-            input {
-                message "Should we continue?"
-                ok "Yes, we should."
-            }
             steps {
                script{
                 withAWS(region: 'us-east-1', credentials: 'aws-creds') {
                     sh """
-                        cd 00-vpc
+                        cd 30-rds
                         terraform apply -auto-approve
                     """
                 }
@@ -45,16 +42,8 @@ pipeline {
                }
             }
         }
-        stage('Trigger SG') {
-            when {
-                experession {params.ACTION == 'apply'}
-            }
-            steps{
-                build job: '10-sg', parameters: [string(name: 'ACTION', value: 'apply')], propagate: true
-            }
-        }
+        
     }
-
     post { 
         always { 
             echo 'I will always say Hello again!'
@@ -66,7 +55,5 @@ pipeline {
         success { 
             echo 'I will run when pipeline is success'
         }
-        
     }
 }
-
